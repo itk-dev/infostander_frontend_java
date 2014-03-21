@@ -34,6 +34,9 @@ public class Worker implements Runnable {
 	public Worker(Infostander infostander) {
 		this.infostander = infostander;
 		this.images = new ArrayList<BufferedImage>();
+		
+		// TODO: Setup Socket IO connection.
+		
 	}
 
 	@Override
@@ -118,7 +121,6 @@ public class Worker implements Runnable {
 	private List<BufferedImage> getChannel() throws ChannelGetException {
 		// TODO: Get channel.
 		
-		
 		// TODO: Save images to disk.
 		
 		// TODO: Cache channel.
@@ -127,8 +129,8 @@ public class Worker implements Runnable {
 		
 		List<BufferedImage> res = new ArrayList<BufferedImage>();
 		try {
-			res.add(ImageIO.read(new File("Owl.jpg")));
-			res.add(ImageIO.read(new File("Fish.jpg")));
+			res.add(ImageIO.read(new File("files/Owl.jpg")));
+			res.add(ImageIO.read(new File("files/Fish.jpg")));
 		} catch (IOException e) {
 			// TODO: Report error.
 		
