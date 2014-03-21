@@ -9,12 +9,24 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+/**
+ * Worker class for Infostander.
+ * @author Troels Ugilt Jensen
+ */
 public class Worker implements Runnable {
+	/**
+	 * Exception for when getting a channel fails.
+	 * @author Troels Ugilt Jensens
+	 */
+	static class ChannelGetException extends Exception{
+		private static final long serialVersionUID = -3458002186764700171L;
+	};
+
 	private Infostander infostander;
 	private List<BufferedImage> images;
 	
 	/**
-	 * Constructor
+	 * Constructor.
 	 * 
 	 * @param infostander
 	 *            The UI class
@@ -48,9 +60,8 @@ public class Worker implements Runnable {
 					newlist = getChannel();
 
 					images = newlist;
-				} catch (Exception e) {
+				} catch (ChannelGetException e) {
 					// If exception, do not update list. Use previous and report error.
-					// TODO: Report error.
 				}
 			}
 
@@ -66,6 +77,11 @@ public class Worker implements Runnable {
 		}
 	}
 	
+	/**
+	 * Get the initial channel.
+	 * @return List<BufferedImage>
+	 *   List of images from channel else from cache.
+	 */
 	private List<BufferedImage> getInitialChannel() {
 		List<BufferedImage> list = new ArrayList<BufferedImage>();
 		try {
@@ -87,15 +103,21 @@ public class Worker implements Runnable {
 		
 		// TODO: Get list from disk.
 		
+		if (res.size() == 0) {
+			// TODO: Report error.
+		}
+		
 		return res;
 	}
 	
 	/**
 	 * Get the channel.
 	 * @return
+	 * @throws ChannelGetException 
 	 */
-	private List<BufferedImage> getChannel() {
+	private List<BufferedImage> getChannel() throws ChannelGetException {
 		// TODO: Get channel.
+		
 		
 		// TODO: Save images to disk.
 		
@@ -108,7 +130,10 @@ public class Worker implements Runnable {
 			res.add(ImageIO.read(new File("Owl.jpg")));
 			res.add(ImageIO.read(new File("Fish.jpg")));
 		} catch (IOException e) {
-			// TODO: Handle errors.
+			// TODO: Report error.
+		
+			// TODO: Throw exception.
+			throw new ChannelGetException();
 		}
 		return res;
 	}
