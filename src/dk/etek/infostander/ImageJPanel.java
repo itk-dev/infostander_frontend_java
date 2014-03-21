@@ -8,10 +8,6 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -21,8 +17,8 @@ public class ImageJPanel extends JPanel implements ActionListener {
 	private static final long serialVersionUID = -2952195227257913443L;
 	private static JLabel label;
 	
-    private static final float DELTA = -0.01f;
-    private static final Timer timer = new Timer(100, null);
+    private static final float DELTA = -0.0125f;
+    private static final Timer timer = new Timer(50, null);
     private float alpha = 1f;
     private boolean fadeDown;
 	
@@ -34,9 +30,6 @@ public class ImageJPanel extends JPanel implements ActionListener {
 		fadeDown = true;
 		timer.setInitialDelay(0);
         timer.addActionListener(this);
-        try {
-			label.setIcon(new ImageIcon(ImageIO.read(new File("Fisk.jpg"))));
-		} catch (IOException e) {}
 	}
 	
 	public void fadeToImage(BufferedImage image) {
@@ -54,6 +47,11 @@ public class ImageJPanel extends JPanel implements ActionListener {
         while(timer.isRunning()) {
         	Thread.yield();
         }
+	}
+	
+	public void setImage(BufferedImage image) {
+		ImageIcon icon = new ImageIcon(image);
+		label.setIcon(icon);
 	}
 	
 	@Override
