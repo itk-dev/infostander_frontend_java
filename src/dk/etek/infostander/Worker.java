@@ -50,6 +50,7 @@ public class Worker implements Runnable {
 					images = newlist;
 				} catch (Exception e) {
 					// If exception, do not update list. Use previous and report error.
+					// TODO: Report error.
 				}
 			}
 
@@ -77,8 +78,16 @@ public class Worker implements Runnable {
 		return list;
 	}
 	
+	/**
+	 * Get the cached channel.
+	 * @return
+	 */
 	private List<BufferedImage> getCachedChannel() {
-		return new ArrayList<BufferedImage>();
+		List<BufferedImage> res = new ArrayList<BufferedImage>();
+		
+		// TODO: Get list from disk.
+		
+		return res;
 	}
 	
 	/**
@@ -86,13 +95,14 @@ public class Worker implements Runnable {
 	 * @return
 	 */
 	private List<BufferedImage> getChannel() {
-		// Get channel.
+		// TODO: Get channel.
 		
-		// Save images to disk.
+		// TODO: Save images to disk.
 		
-		// Cache channel.
+		// TODO: Cache channel.
 		
-		// Generate image list.
+		// TODO: Generate image list.
+		
 		List<BufferedImage> res = new ArrayList<BufferedImage>();
 		try {
 			res.add(ImageIO.read(new File("Owl.jpg")));

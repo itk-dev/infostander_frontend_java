@@ -6,8 +6,13 @@ import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+/**
+ * Infostander main class. Launches UI and Worker.
+ * @author Troels Ugilt Jensen
+ */
 public class Infostander extends JFrame {
 	private static final long serialVersionUID = 8956048705298831657L;
+	
 	private static final int WINDOW_WIDTH = 256;
 	private static final int WINDOW_HEIGHT = 384;
 	private static Infostander ui;
@@ -32,6 +37,7 @@ public class Infostander extends JFrame {
 		// Place window in top left corner.
 		setLocation(0, 0);
 		
+		// Set background color to black.
 		setBackground(Color.BLACK);
 		
 		// Make sure the window is always on top.
@@ -44,6 +50,10 @@ public class Infostander extends JFrame {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 	
+	/**
+	 * Sets new image.
+	 * @param image
+	 */
 	public void setNewImage(BufferedImage image) {
 		// Fade out old image to black.
 		imagePanel.fadeToImage(image);
@@ -54,13 +64,15 @@ public class Infostander extends JFrame {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// Launch new thread for UI.
+		// Launch new threads for UI and Worker.
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
+				// UI thread.
 				ui = new Infostander();
 				ui.setVisible(true);
 				
+				// Worker thread.
 				worker = new Worker(ui);
 				(new Thread(worker)).start();
 			}
