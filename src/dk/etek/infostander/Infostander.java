@@ -3,7 +3,9 @@ package dk.etek.infostander;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 /**
@@ -26,11 +28,11 @@ public class Infostander extends JFrame {
 	public Infostander() {
 		// Window title.
 		setTitle("Infostander");
-
+		
 		// Add JLabel to JFrame
 		imagePanel = new ImageJPanel();
 		add(imagePanel);
-		
+
 		// Set window size.
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		
@@ -58,7 +60,7 @@ public class Infostander extends JFrame {
 		// Fade out old image to black.
 		imagePanel.fadeToImage(image);
 	}
-
+	
 	/**
 	 * Main method. Launches window and starts worker thread.
 	 * @param args
@@ -71,10 +73,17 @@ public class Infostander extends JFrame {
 				// UI thread.
 				ui = new Infostander();
 				ui.setVisible(true);
-				
+
 				// Worker thread.
 				worker = new Worker(ui);
-				(new Thread(worker)).start();
+				
+				if (worker.hasToken()) {
+					(new Thread(worker)).start();
+				} else {
+					String token = JOptionPane.showInputDialog(ui ,"Activation code:", "", JOptionPane.QUESTION_MESSAGE);
+					worker.setToken(token);
+					(new Thread(worker)).start();
+				}
 			}
 		});
 	}
