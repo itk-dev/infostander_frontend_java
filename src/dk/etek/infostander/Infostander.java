@@ -63,6 +63,24 @@ public class Infostander extends JFrame {
 		// Fade out old image to black.
 		imagePanel.fadeToImage(image);
 	}
+
+	public void workerDone() {
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		imagePanel.fadeToImage(new BufferedImage(WINDOW_WIDTH, WINDOW_HEIGHT, BufferedImage.TYPE_INT_ARGB));
+		String activationCode = JOptionPane.showInputDialog(null ,"Enter acctivation code:", "Not connected", JOptionPane.WARNING_MESSAGE);
+		
+		worker = new Worker(ui);
+		while(!worker.setToken(activationCode)) {
+			activationCode = JOptionPane.showInputDialog(null ,"Enter acctivation code:", "Wrong activation code!", JOptionPane.ERROR_MESSAGE);
+		}
+		(new Thread(worker)).start();
+	}
 	
 	/**
 	 * Main method. Launches window and starts worker thread.
@@ -83,8 +101,11 @@ public class Infostander extends JFrame {
 				if (worker.hasToken()) {
 					(new Thread(worker)).start();
 				} else {
-					String activationCode = JOptionPane.showInputDialog(ui ,"Activation code:", "", JOptionPane.QUESTION_MESSAGE);
-					worker.setToken(activationCode);
+					String activationCode = JOptionPane.showInputDialog(null ,"Enter acctivation code:", "Not connected", JOptionPane.WARNING_MESSAGE);
+					while(!worker.setToken(activationCode)) {
+						activationCode = JOptionPane.showInputDialog(null ,"Enter acctivation code:", "Wrong activation code!", JOptionPane.ERROR_MESSAGE);
+					}
+
 					(new Thread(worker)).start();
 				}
 			}

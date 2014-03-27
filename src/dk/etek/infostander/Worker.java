@@ -43,7 +43,10 @@ public class Worker implements Runnable {
 	};
 	
 	public static final int SLIDE_TIME = 6000;
-
+	
+	private static final String CHANNEL_DAT_PATH = "files/channel.dat";
+	private static final String TOKEN_DAT_PATH   = "files/token.dat";
+	
 	private Infostander infostander;
 	private List<BufferedImage> images;
 	private List<BufferedImage> nextImages;
@@ -51,6 +54,7 @@ public class Worker implements Runnable {
 	private SocketIOClient socket;
 	private String token;
 	private boolean secure;
+	private volatile boolean running = true;
 
 	/**
 	 * Constructor.
@@ -82,7 +86,13 @@ public class Worker implements Runnable {
 		
 		secure = Boolean.parseBoolean((String) prop.get("secure"));
 	}
-
+	
+	public void gotBooted() {
+		socket.terminate();
+		running = false;
+		clearData();
+	}
+	
 	public void processChannel(JSONObject json) {
 		List<String> imagePaths = new ArrayList<String>();
 		try {
@@ -136,10 +146,29 @@ public class Worker implements Runnable {
 		}
 		
 		// Save channel.dat
-		
+		PrintWriter out;
+		try {
+			out = new PrintWriter(CHANNEL_DAT_PATH);
+			for (String imageName : imageFilenameList) {
+				out.println(imageName);
+			}
+			
+			out.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		// Set next channel list.
 		nextImages = newList;
+	}
+	
+	public void clearData() {
+		token = null;
+		File file = new File(TOKEN_DAT_PATH);
+		file.delete();
+		file = new File(CHANNEL_DAT_PATH);
+		file.delete();
 	}
 	
 	/**
@@ -150,7 +179,7 @@ public class Worker implements Runnable {
 	public boolean hasToken() {
 		// Load token.dat file.
 		try {
-			String output = new Scanner(new File("files/token.dat")).useDelimiter("\\Z").next();
+			String output = new Scanner(new File(TOKEN_DAT_PATH)).useDelimiter("\\Z").next();
 			token = output;
 		} catch (FileNotFoundException e1) {
 			return false;
@@ -207,7 +236,7 @@ public class Worker implements Runnable {
 			token = (String) json.get("token");
 
 			// Save token to disk.
-			PrintWriter out = new PrintWriter("files/token.dat");
+			PrintWriter out = new PrintWriter(TOKEN_DAT_PATH);
 			out.print(token);
 			out.close();
 		} catch (Exception e) {
@@ -224,6 +253,27 @@ public class Worker implements Runnable {
 
 	@Override
 	public void run() {
+		// Initial get of channel.
+		images = new ArrayList<BufferedImage>();
+		
+		Scanner scanner;
+		try {
+			scanner = new Scanner(new File(CHANNEL_DAT_PATH));
+			String path;
+			while(scanner.hasNext() && !(path = scanner.nextLine()).equals("")) {
+				System.out.println(path);
+				images.add(ImageIO.read(new File(path)));
+			}
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		int index = 0;
+
 		// Setup Socket IO connection. 
 		try {
 			socket = new SocketIOClient(this, prop.getProperty("ws"), token, secure);
@@ -235,12 +285,7 @@ public class Worker implements Runnable {
 			e.printStackTrace();
 		} 
 
-		// Initial get of channel.
-		images = new ArrayList<BufferedImage>();
-
-		int index = 0;
-
-		while (true) {
+		while (running) {
 			if (images.size() > 0) {
 				// Display next image in images array.
 				infostander.setNewImage(images.get(index));
@@ -264,5 +309,6 @@ public class Worker implements Runnable {
 
 			}
 		}
+		infostander.workerDone();
 	}
 }

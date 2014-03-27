@@ -4,7 +4,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Properties;
 
 import javax.net.ssl.SSLContext;
 
@@ -41,7 +40,7 @@ public class SocketIOClient implements IOCallback {
 		url = new URL(serverURL + "?token=" + token);
 		socket = new SocketIO(url, this);
 	}
-	
+		
 	@Override
 	public void on(String event, IOAcknowledge ack, Object... args) {
 		System.out.println("Server triggered event '" + event + "'");
@@ -49,12 +48,28 @@ public class SocketIOClient implements IOCallback {
 		if (event.equals("channelPush")) {
 			JSONObject json = (JSONObject) args[0];
 			worker.processChannel(json);
+		} else if (event.equals("reload")) {
+			socket.disconnect();
+			socket = new SocketIO(url, this);
+		} else if (event.equals("ready")) {
+			System.out.println("Triggered ready event");
+			JSONObject json = (JSONObject) args[0];
+			try {
+				int statusCode = (Integer) json.get("statusCode");
+				if (statusCode == 404) {
+					worker.gotBooted();
+				}
+			} catch (JSONException e) {}
 		}
 	}
 
+	public void terminate() {
+		socket.disconnect();
+		socket = null;
+	}
+	
 	@Override
 	public void onConnect() {
-		System.out.println("Connection established.");
 		JSONObject json = new JSONObject();
 		try {
 			json.put("token", token);
@@ -66,15 +81,23 @@ public class SocketIOClient implements IOCallback {
 
 	@Override
 	public void onDisconnect() {
-		System.out.println("Connection terminated."); 
-		
+		System.out.println("Connection terminated.");
 	}
 
 	@Override
 	public void onError(SocketIOException socketIOException) {
-		System.out.println("An Error occured. Reconnecting...");
-		socketIOException.printStackTrace();
-
+		System.out.println("SocketIO exception: Restarting socket in 30 seconds...");
+		
+		socket.disconnect();
+		
+		try {
+			Thread.sleep(30000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		socket = new SocketIO(url, this);
 	}
 
 	@Override
