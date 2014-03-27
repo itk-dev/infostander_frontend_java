@@ -33,8 +33,6 @@ public class ImageJPanel extends JPanel implements ActionListener {
 		fadeDown = true;
 		timer.setInitialDelay(0);
         timer.addActionListener(this);
-        
-        System.out.println(DELTA);
 	}
 	
 	public void fadeToImage(BufferedImage image) {

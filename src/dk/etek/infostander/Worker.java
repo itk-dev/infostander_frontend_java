@@ -50,6 +50,7 @@ public class Worker implements Runnable {
 	private Properties prop;
 	private SocketIOClient socket;
 	private String token;
+	private boolean secure;
 
 	/**
 	 * Constructor.
@@ -78,6 +79,8 @@ public class Worker implements Runnable {
 				}
 			}
 		}
+		
+		secure = Boolean.parseBoolean((String) prop.get("secure"));
 	}
 
 	public void processChannel(JSONObject json) {
@@ -223,7 +226,7 @@ public class Worker implements Runnable {
 	public void run() {
 		// Setup Socket IO connection. 
 		try {
-			socket = new SocketIOClient(this, prop.getProperty("ws"), token);
+			socket = new SocketIOClient(this, prop.getProperty("ws"), token, secure);
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

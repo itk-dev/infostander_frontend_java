@@ -2,6 +2,7 @@ package dk.etek.infostander;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 
@@ -21,12 +22,22 @@ public class SocketIOClient implements IOCallback {
 	private String token;
 	private URL url;
 	
-	public SocketIOClient(Worker worker, String serverURL, String token) throws MalformedURLException, NoSuchAlgorithmException {
+	public SocketIOClient(Worker worker, String serverURL, String token, boolean secure) throws MalformedURLException, NoSuchAlgorithmException {
 		this.worker = worker;
 		this.token = token;
 		
-		//SocketIO.setDefaultSSLSocketFactory(SSLContext.getDefault());
-		
+		if (secure) {
+			SSLContext sslContext = null;
+			sslContext = SSLContext.getInstance( "TLS" );
+			try {
+				sslContext.init( null, null, null );
+			} catch (KeyManagementException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			SocketIO.setDefaultSSLSocketFactory(sslContext);
+		}
+				
 		url = new URL(serverURL + "?token=" + token);
 		socket = new SocketIO(url, this);
 	}
