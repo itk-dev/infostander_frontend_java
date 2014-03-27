@@ -20,7 +20,7 @@ public class ImageJPanel extends JPanel implements ActionListener {
 	private static final int FADE_TIME = 2500;
 	private static final int FADE_STEPLENGTH = 50;
     
-	private static final float DELTA = - 1.0f / ((float)FADE_TIME / (float)FADE_STEPLENGTH);//-0.0125f;
+	private static final float DELTA = - 1.0f / ((float)FADE_TIME / (float)FADE_STEPLENGTH);
     private static final Timer timer = new Timer(FADE_STEPLENGTH, null);
     private float alpha = 1f;
     private boolean fadeDown;
