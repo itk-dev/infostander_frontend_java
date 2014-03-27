@@ -1,6 +1,7 @@
 package dk.etek.infostander;
 
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 
@@ -17,43 +18,52 @@ import org.json.JSONObject;
 public class SocketIOClient implements IOCallback {
 	private Worker worker;
 	private SocketIO socket;
+	private String token;
+	private URL url;
 	
 	public SocketIOClient(Worker worker, String serverURL, String token) throws MalformedURLException, NoSuchAlgorithmException {
 		this.worker = worker;
-		System.out.println(serverURL);
+		this.token = token;
+		
 		//SocketIO.setDefaultSSLSocketFactory(SSLContext.getDefault());
 		
-		socket = new SocketIO();
-		
-		Properties props = new Properties();
-		props.put("token", token);
-		
-		System.out.println(props.toString());
-		socket = new SocketIO(serverURL, props);
-		socket.connect(this);
-		// Sends a string to the server.
-		socket.send("Hello Server");
+		url = new URL(serverURL + "?token=" + token);
+		socket = new SocketIO(url, this);
 	}
 	
 	@Override
 	public void on(String event, IOAcknowledge ack, Object... args) {
 		System.out.println("Server triggered event '" + event + "'");
+		
+		if (event.equals("channelPush")) {
+			JSONObject json = (JSONObject) args[0];
+			worker.processChannel(json);
+		}
 	}
 
 	@Override
 	public void onConnect() {
-		System.out.println("Connection established.");	
+		System.out.println("Connection established.");
+		JSONObject json = new JSONObject();
+		try {
+			json.put("token", token);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		socket.emit("ready", json);
 	}
 
 	@Override
 	public void onDisconnect() {
-		System.out.println("Connection terminated.");
+		System.out.println("Connection terminated."); 
+		
 	}
 
 	@Override
 	public void onError(SocketIOException socketIOException) {
-		System.out.println("An Error occured");
+		System.out.println("An Error occured. Reconnecting...");
 		socketIOException.printStackTrace();
+
 	}
 
 	@Override

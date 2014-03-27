@@ -29,7 +29,10 @@ public class Infostander extends JFrame {
 		// Window title.
 		setTitle("Infostander");
 		
-		// Add JLabel to JFrame
+		// Remove top bar.
+		setUndecorated(true);
+		
+		// Add JLabel to JFrame.
 		imagePanel = new ImageJPanel();
 		add(imagePanel);
 
@@ -80,8 +83,8 @@ public class Infostander extends JFrame {
 				if (worker.hasToken()) {
 					(new Thread(worker)).start();
 				} else {
-					String token = JOptionPane.showInputDialog(ui ,"Activation code:", "", JOptionPane.QUESTION_MESSAGE);
-					worker.setToken(token);
+					String activationCode = JOptionPane.showInputDialog(ui ,"Activation code:", "", JOptionPane.QUESTION_MESSAGE);
+					worker.setToken(activationCode);
 					(new Thread(worker)).start();
 				}
 			}
