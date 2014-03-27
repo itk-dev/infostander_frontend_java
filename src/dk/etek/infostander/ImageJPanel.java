@@ -17,8 +17,11 @@ public class ImageJPanel extends JPanel implements ActionListener {
 	private static final long serialVersionUID = -2952195227257913443L;
 	private static JLabel label;
 	
-    private static final float DELTA = -0.0125f;
-    private static final Timer timer = new Timer(50, null);
+	private static final int FADE_TIME = 2500;
+	private static final int FADE_STEPLENGTH = 50;
+    
+	private static final float DELTA = - 1.0f / ((float)FADE_TIME / (float)FADE_STEPLENGTH);//-0.0125f;
+    private static final Timer timer = new Timer(FADE_STEPLENGTH, null);
     private float alpha = 1f;
     private boolean fadeDown;
 	
@@ -30,6 +33,8 @@ public class ImageJPanel extends JPanel implements ActionListener {
 		fadeDown = true;
 		timer.setInitialDelay(0);
         timer.addActionListener(this);
+        
+        System.out.println(DELTA);
 	}
 	
 	public void fadeToImage(BufferedImage image) {
