@@ -105,7 +105,7 @@ public class Worker implements Runnable {
 				}
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
+			System.out.println("Error processesing channel.");
 			return;
 		}
 		
@@ -141,7 +141,7 @@ public class Worker implements Runnable {
 		        newList.add(ImageIO.read(new File("files/" + filename)));
 		        imageFilenameList.add("files/" + filename);
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.println("Error processing file (ignoring): " + imagePaths);
 			}
 		}
 		
@@ -155,8 +155,7 @@ public class Worker implements Runnable {
 			
 			out.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Error saving channel.dat file. Ignoring.");
 		}
 		
 		// Set next channel list.
@@ -181,7 +180,7 @@ public class Worker implements Runnable {
 		try {
 			String output = new Scanner(new File(TOKEN_DAT_PATH)).useDelimiter("\\Z").next();
 			token = output;
-		} catch (FileNotFoundException e1) {
+		} catch (FileNotFoundException e) {
 			return false;
 		}
 		return true;
@@ -239,8 +238,10 @@ public class Worker implements Runnable {
 			PrintWriter out = new PrintWriter(TOKEN_DAT_PATH);
 			out.print(token);
 			out.close();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (IOException e) {
+			return false;
+		} catch (JSONException e) {
+			System.out.println("Error reading json token.");
 			return false;
 		} finally {
 			if (connection != null) {
@@ -264,12 +265,12 @@ public class Worker implements Runnable {
 				System.out.println(path);
 				images.add(ImageIO.read(new File(path)));
 			}
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (FileNotFoundException e) {
+			System.out.println("No channel.dat found. Starting with empty screen.");
+			// No file found, no problem. 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Error reading channel.dat");
+			// Not problem.
 		}
 
 		int index = 0;
@@ -278,11 +279,9 @@ public class Worker implements Runnable {
 		try {
 			socket = new SocketIOClient(this, prop.getProperty("ws"), token, secure);
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Error: Malformed url to middleware. Fix configuration and restart application.");
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("Error: SSL algorithm not found. Restart application.");
 		} 
 
 		while (running) {
@@ -292,13 +291,13 @@ public class Worker implements Runnable {
 			}
 			
 			index++;
-			
+
+			// If reached end of array.
 			if (index >= images.size()) {
 				if (nextImages != null) {
 					images = nextImages;
 					nextImages = null;
 				}
-
 				index = 0;
 			}
 			
@@ -306,7 +305,7 @@ public class Worker implements Runnable {
 			try {
 				Thread.sleep(SLIDE_TIME);
 			} catch (InterruptedException e) {
-
+				// Not important.
 			}
 		}
 		infostander.workerDone();

@@ -34,8 +34,9 @@ public class Infostander extends JFrame {
 		
 		// Add JLabel to JFrame.
 		imagePanel = new ImageJPanel();
+		imagePanel.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		add(imagePanel);
-
+		
 		// Set window size.
 		setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 		
@@ -64,12 +65,15 @@ public class Infostander extends JFrame {
 		imagePanel.fadeToImage(image);
 	}
 
+	/**
+	 * Call this when the worker thread terminates.
+	 * Fades image to black and asks for new 
+	 */
 	public void workerDone() {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// No problem.
 		}
 		
 		imagePanel.fadeToImage(new BufferedImage(WINDOW_WIDTH, WINDOW_HEIGHT, BufferedImage.TYPE_INT_ARGB));
@@ -81,7 +85,7 @@ public class Infostander extends JFrame {
 		}
 		(new Thread(worker)).start();
 	}
-	
+		
 	/**
 	 * Main method. Launches window and starts worker thread.
 	 * @param args
@@ -94,7 +98,7 @@ public class Infostander extends JFrame {
 				// UI thread.
 				ui = new Infostander();
 				ui.setVisible(true);
-
+				
 				// Worker thread.
 				worker = new Worker(ui);
 				
@@ -105,7 +109,6 @@ public class Infostander extends JFrame {
 					while(!worker.setToken(activationCode)) {
 						activationCode = JOptionPane.showInputDialog(null ,"Enter acctivation code:", "Wrong activation code!", JOptionPane.ERROR_MESSAGE);
 					}
-
 					(new Thread(worker)).start();
 				}
 			}

@@ -31,8 +31,7 @@ public class SocketIOClient implements IOCallback {
 			try {
 				sslContext.init( null, null, null );
 			} catch (KeyManagementException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				sslContext = SSLContext.getDefault();
 			}
 			SocketIO.setDefaultSSLSocketFactory(sslContext);
 		}
@@ -52,11 +51,11 @@ public class SocketIOClient implements IOCallback {
 			socket.disconnect();
 			socket = new SocketIO(url, this);
 		} else if (event.equals("ready")) {
-			System.out.println("Triggered ready event");
 			JSONObject json = (JSONObject) args[0];
 			try {
 				int statusCode = (Integer) json.get("statusCode");
 				if (statusCode == 404) {
+					System.out.println("404: booted!");
 					worker.gotBooted();
 				}
 			} catch (JSONException e) {}
@@ -93,8 +92,7 @@ public class SocketIOClient implements IOCallback {
 		try {
 			Thread.sleep(30000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// Not important.
 		}
 		
 		socket = new SocketIO(url, this);
@@ -102,15 +100,11 @@ public class SocketIOClient implements IOCallback {
 
 	@Override
 	public void onMessage(String data, IOAcknowledge ack) {
-		System.out.println("Server said: " + data);
+		// Not used.
 	}
 
 	@Override
 	public void onMessage(JSONObject json, IOAcknowledge ack) {
-		try {
-			System.out.println("Server said:" + json.toString(2));
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
+		// Not used.
 	}
 }
