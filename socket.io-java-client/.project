@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>socket.io-java-client</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.ui.externaltools.ExternalToolBuilder</name>
+			<triggers>full,incremental,</triggers>
+			<arguments>
+				<dictionary>
+					<key>LaunchConfigHandle</key>
+					<value>&lt;project&gt;/.externalToolBuilders/socket.io-java-client.launch</value>
+				</dictionary>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>bin</name>
+			<type>2</type>
+			<location>/Users/troelsugiltjensen/Documents/workspace/socket.io-java-client/bin</location>
+		</link>
+		<link>
+			<name>junit.jar</name>
+			<type>2</type>
+			<location>/Applications/eclipse/plugins/org.junit_4.8.2.v4_8_2_v20110321-1705/junit.jar</location>
+		</link>
+		<link>
+			<name>org.hamcrest.core_1.1.0.v20090501071000.jar</name>
+			<type>2</type>
+			<location>/Applications/eclipse/plugins/org.hamcrest.core_1.1.0.v20090501071000.jar</location>
+		</link>
+	</linkedResources>
+</projectDescription>
