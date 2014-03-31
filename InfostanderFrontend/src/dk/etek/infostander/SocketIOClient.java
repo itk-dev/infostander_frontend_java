@@ -4,8 +4,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import io.socket.IOAcknowledge;
 import io.socket.IOCallback;
@@ -16,6 +19,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class SocketIOClient implements IOCallback {
+	// For development purposes. Set to true to allow all certificates.
+	private static final boolean acceptAllCertificates = false;
+
 	private Worker worker;
 	private SocketIO socket;
 	private String token;
@@ -26,14 +32,39 @@ public class SocketIOClient implements IOCallback {
 		this.token = token;
 		
 		if (secure) {
-			SSLContext sslContext = null;
-			sslContext = SSLContext.getInstance( "TLS" );
-			try {
-				sslContext.init( null, null, null );
-			} catch (KeyManagementException e) {
-				sslContext = SSLContext.getDefault();
+			if (!acceptAllCertificates) {
+				SSLContext sslContext = SSLContext.getInstance( "TLS" );
+				try {
+					sslContext.init( null, null, null );
+				} catch (KeyManagementException e) {
+					sslContext = SSLContext.getDefault();
+				}
+				SocketIO.setDefaultSSLSocketFactory(sslContext);
+			} else {
+			    // Create a trust manager that does not validate certificate chains
+			    final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+			        @Override
+			        public void checkClientTrusted(final X509Certificate[] chain, final String authType) {
+			        }
+			        @Override
+			        public void checkServerTrusted(final X509Certificate[] chain, final String authType) {
+			        }
+			        @Override
+			        public X509Certificate[] getAcceptedIssuers() {
+			            return null;
+			        }
+			    } };
+
+			    // Install the all-trusting trust manager
+			    final SSLContext sslContext = SSLContext.getInstance("TLS");
+			    try {
+					sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+				} catch (KeyManagementException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			    SocketIO.setDefaultSSLSocketFactory(sslContext);
 			}
-			SocketIO.setDefaultSSLSocketFactory(sslContext);
 		}
 				
 		url = new URL(serverURL + "?token=" + token);
