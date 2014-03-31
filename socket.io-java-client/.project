@@ -28,7 +28,7 @@
 		<link>
 			<name>bin</name>
 			<type>2</type>
-			<location>/Users/troelsugiltjensen/Documents/workspace/socket.io-java-client/bin</location>
+			<locationURI>PROJECT_LOC/bin</locationURI>
 		</link>
 		<link>
 			<name>junit.jar</name>
