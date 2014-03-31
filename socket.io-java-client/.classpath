@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" output="bin" path="src"/>
-	<classpathentry kind="con" path="/Users/troelsugiltjensen/Documents/workspace/socket.io-java-client/bin"/>
-	<classpathentry kind="lib" path="/Users/troelsugiltjensen/Documents/workspace/socket.io-java-client/libs/json-org.jar"/>
-	<classpathentry kind="lib" path="/Users/troelsugiltjensen/Documents/workspace/socket.io-java-client/libs/WebSocket.jar"/>
+	<classpathentry kind="con" path="/bin"/>
 	<classpathentry kind="con" path="/Applications/eclipse/plugins/org.junit_4.8.2.v4_8_2_v20110321-1705/junit.jar"/>
 	<classpathentry kind="con" path="/Applications/eclipse/plugins/org.hamcrest.core_1.1.0.v20090501071000.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="libs/json-org.jar"/>
+	<classpathentry kind="lib" path="libs/WebSocket.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
