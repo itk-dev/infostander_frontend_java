@@ -11,12 +11,9 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 
 import io.socket.IOAcknowledge;
 import io.socket.IOCallback;
@@ -53,19 +50,14 @@ public class SocketIOClient implements IOCallback {
 					sslContext.init(null, tmf.getTrustManagers(), null);			
 				    SocketIO.setDefaultSSLSocketFactory(sslContext);
 				} catch (KeyStoreException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (CertificateException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (KeyManagementException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
