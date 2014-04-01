@@ -1,6 +1,8 @@
 # Infostander Frontend in Java
 This is a frontend for Infostander written in Java.
 
+The latest compiled jar file is in the jar/ folder.
+
 The project directory is InfostanderFrontend/ .
 
 The socket.io-java-client folder is a modified socket.io-client library (https://github.com/Gottox/socket.io-java-client).
