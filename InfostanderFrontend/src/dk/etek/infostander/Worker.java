@@ -29,19 +29,8 @@ import org.json.JSONObject;
 
 /**
  * Worker class for Infostander.
- * 
- * @author Troels Ugilt Jensen
  */
 public class Worker implements Runnable {
-	/**
-	 * Exception for when getting a channel fails.
-	 * 
-	 * @author Troels Ugilt Jensens
-	 */
-	static class ChannelGetException extends Exception {
-		private static final long serialVersionUID = -3458002186764700171L;
-	};
-	
 	public static final int SLIDE_TIME = 6000;
 	
 	private static final String CHANNEL_DAT_PATH = "files/channel.dat";
@@ -54,6 +43,7 @@ public class Worker implements Runnable {
 	private SocketIOClient socket;
 	private String token;
 	private boolean secure;
+	private boolean selfsigned;
 	private volatile boolean running = true;
 
 	/**
@@ -85,6 +75,7 @@ public class Worker implements Runnable {
 		}
 		
 		secure = Boolean.parseBoolean((String) prop.get("secure"));
+		selfsigned = Boolean.parseBoolean((String) prop.get("selfsigned"));
 	}
 	
 	public void gotBooted() {
@@ -277,7 +268,7 @@ public class Worker implements Runnable {
 
 		// Setup Socket IO connection. 
 		try {
-			socket = new SocketIOClient(this, prop.getProperty("ws"), token, secure);
+			socket = new SocketIOClient(this, prop.getProperty("ws"), token, secure, selfsigned);
 		} catch (MalformedURLException e) {
 			System.out.println("Error: Malformed url to middleware. Fix configuration and restart application.");
 		} catch (NoSuchAlgorithmException e) {

@@ -1,13 +1,21 @@
 package dk.etek.infostander;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import io.socket.IOAcknowledge;
@@ -19,51 +27,47 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class SocketIOClient implements IOCallback {
-	// For development purposes. Set to true to allow all certificates.
-	private static final boolean acceptAllCertificates = false;
-
 	private Worker worker;
 	private SocketIO socket;
 	private String token;
 	private URL url;
 	
-	public SocketIOClient(Worker worker, String serverURL, String token, boolean secure) throws MalformedURLException, NoSuchAlgorithmException {
+	public SocketIOClient(Worker worker, String serverURL, String token, boolean secure, boolean selfsigned) throws MalformedURLException, NoSuchAlgorithmException {
 		this.worker = worker;
 		this.token = token;
 		
 		if (secure) {
-			if (!acceptAllCertificates) {
-				SSLContext sslContext = SSLContext.getInstance( "TLS" );
-				try {
-					sslContext.init( null, null, null );
-				} catch (KeyManagementException e) {
-					sslContext = SSLContext.getDefault();
-				}
+			if (!selfsigned) {
+				SSLContext sslContext = SSLContext.getDefault();
 				SocketIO.setDefaultSSLSocketFactory(sslContext);
 			} else {
-			    // Create a trust manager that does not validate certificate chains
-			    final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-			        @Override
-			        public void checkClientTrusted(final X509Certificate[] chain, final String authType) {
-			        }
-			        @Override
-			        public void checkServerTrusted(final X509Certificate[] chain, final String authType) {
-			        }
-			        @Override
-			        public X509Certificate[] getAcceptedIssuers() {
-			            return null;
-			        }
-			    } };
-
-			    // Install the all-trusting trust manager
-			    final SSLContext sslContext = SSLContext.getInstance("TLS");
-			    try {
-					sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+				KeyStore keyStore;
+				try {
+					keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+					InputStream readStream = new FileInputStream("files/mykeystore.jks");
+					keyStore.load(readStream, ("Fisk.1").toCharArray());
+					TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+					tmf.init(keyStore);
+					
+					SSLContext sslContext = SSLContext.getInstance("TLS");
+					sslContext.init(null, tmf.getTrustManagers(), null);			
+				    SocketIO.setDefaultSSLSocketFactory(sslContext);
+				} catch (KeyStoreException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (CertificateException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				} catch (KeyManagementException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			    SocketIO.setDefaultSSLSocketFactory(sslContext);
 			}
 		}
 				

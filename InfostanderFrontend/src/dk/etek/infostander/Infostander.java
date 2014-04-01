@@ -10,7 +10,6 @@ import javax.swing.SwingUtilities;
 
 /**
  * Infostander main class. Launches UI and Worker.
- * @author Troels Ugilt Jensen
  */
 public class Infostander extends JFrame {
 	private static final long serialVersionUID = 8956048705298831657L;
