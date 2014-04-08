@@ -32,6 +32,9 @@ public class ImageJPanel extends JPanel implements ActionListener {
      * Constructor. Starts with black screen.
      */
 	public ImageJPanel() {
+		// Make sure background is black
+		setBackground(Color.BLACK);
+		
 		((FlowLayout)getLayout()).setVgap(0);
 		label = new JLabel();
 		label.setBackground(Color.BLACK);
