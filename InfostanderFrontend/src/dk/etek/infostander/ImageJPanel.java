@@ -25,7 +25,7 @@ public class ImageJPanel extends JPanel implements ActionListener {
     
 	private static final float DELTA = - 1.0f / ((float)FADE_TIME / (float)FADE_STEPLENGTH);
     private static final Timer timer = new Timer(FADE_STEPLENGTH, null);
-    private float alpha = 1f;
+    private float alpha = 1.0f;
     private boolean fadeDown;
 	
     /**
@@ -89,15 +89,15 @@ public class ImageJPanel extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
 		if (fadeDown) {
 			alpha += DELTA;
-	        if (alpha <= 0) {
-	            alpha = 0;
+	        if (alpha <= 0.0f) {
+	            alpha = 0.0f;
 	            timer.stop();
 	            fadeDown = false;
 	        }
 		} else {
 			alpha -= DELTA;
-	        if (alpha >= 1) {
-	            alpha = 1;
+	        if (alpha >= 1.0f) {
+	            alpha = 1.0f;
 	            timer.stop();
 	            fadeDown = true;
 	        }	

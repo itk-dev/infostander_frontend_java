@@ -54,10 +54,13 @@ keytool -importkeystore -destkeystore [KEYSTORE_FILENAME].jks -srckeystore keyst
 
 ## To use valid certificate in producion
 Open the server frontend location. Save the certificate
-
+<pre>
 keytool -genkey -keyalg RSA -sigalg SHA1withRSA -keystore [KEYSTORE_FILENAME].jks -storepass [PASSWORD] -alias truststore 
+</pre>
 
+<pre>
 keytool -import -trustcacerts -keystore [KEYSTORE_FILENAME].jks -storepass [PASSWORD] -alias [CERTIFICATE_ALIAS] -file [CERTIFICATE_FILENAME]
+</pre>
 
 ## To use a keystore
 Put the keystorefile [KEYSTORE_FILENAME].jks in the files folder.
@@ -68,3 +71,7 @@ secure=true
 truststorefilename=[KEYSTORE_FILENAME].jks
 truststorepassword=[PASSWORD]
 </pre>
+
+## Current issues
+* On windows: Background is white.
+* On windows: Fadein/Fadeout are instantaneous.
