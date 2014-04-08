@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,9 @@ import java.util.Properties;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,7 +47,9 @@ public class Worker implements Runnable {
 	private SocketIOClient socket;
 	private String token;
 	private boolean secure;
-	private boolean selfsigned;
+	private String truststoreFilename;
+	private String truststorePassword;
+	private SSLContext sslContext;
 	private volatile boolean running = true;
 
 	/**
@@ -75,15 +81,43 @@ public class Worker implements Runnable {
 		}
 		
 		secure = Boolean.parseBoolean((String) prop.get("secure"));
-		selfsigned = Boolean.parseBoolean((String) prop.get("selfsigned"));
+		truststoreFilename = (String) prop.get("truststorefilename");
+		truststorePassword = (String) prop.get("truststorepassword");
+		
+		if (secure) {
+			try {
+				KeyStore keyStore;
+				keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+				InputStream readStream = new FileInputStream("files/" + truststoreFilename);
+				keyStore.load(readStream, (truststorePassword).toCharArray());
+				TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+				tmf.init(keyStore);
+				
+				sslContext = SSLContext.getInstance("TLS");
+				sslContext.init(null, tmf.getTrustManagers(), null);
+			} catch (Exception e) {
+				try {
+					sslContext = SSLContext.getDefault();
+				} catch (NoSuchAlgorithmException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
 	}
 	
+	/**
+	 * Handle the event that the server booted the screen.
+	 */
 	public void gotBooted() {
 		socket.terminate();
 		running = false;
 		clearData();
 	}
 	
+	/**
+	 * Process a json channel.
+	 * @param json
+	 */
 	public void processChannel(JSONObject json) {
 		List<String> imagePaths = new ArrayList<String>();
 		try {
@@ -107,15 +141,19 @@ public class Worker implements Runnable {
 		for (String imagePath : imagePaths) {
 			try {
 			    URL url = new URL(imagePath);
-			    String urlStr = url.getPath();
-			    String filename = urlStr.substring( urlStr.lastIndexOf('/')+1, urlStr.length() );
+				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+				if (secure) {
+					((HttpsURLConnection)connection).setSSLSocketFactory(sslContext.getSocketFactory());
+				}
+
+			    String filename = imagePath.substring(imagePath.lastIndexOf('/') + 1, imagePath.length());
 
 				File f = new File("files/" + filename);
 
 				// If file does not exist locally, save it to disk.
-				if(!f.exists() || f.isDirectory()) { 
-			        InputStream is = url.openStream();
-				    OutputStream os = new FileOutputStream("files/" + filename);
+				if(!f.exists() || f.isDirectory()) {
+					InputStream is = connection.getInputStream();
+					OutputStream os = new FileOutputStream("files/" + filename);
 
 			        byte[] b = new byte[2048];
 			        int length;
@@ -127,12 +165,13 @@ public class Worker implements Runnable {
 			        is.close();
 			        os.close();
 				}
-				
+								
 				// Add image to array.
 		        newList.add(ImageIO.read(new File("files/" + filename)));
 		        imageFilenameList.add("files/" + filename);
 			} catch (IOException e) {
-				System.out.println("Error processing file (ignoring): " + imagePaths);
+				e.printStackTrace();
+				System.out.println("Error processing file (ignoring)");
 			}
 		}
 		
@@ -146,13 +185,16 @@ public class Worker implements Runnable {
 			
 			out.close();
 		} catch (FileNotFoundException e) {
-			System.out.println("Error saving channel.dat file. Ignoring.");
+			System.out.println("Error saving channel.dat file (ignoring).");
 		}
 		
 		// Set next channel list.
 		nextImages = newList;
 	}
 	
+	/**
+	 * Delete cached files.
+	 */
 	public void clearData() {
 		token = null;
 		File file = new File(TOKEN_DAT_PATH);
@@ -176,7 +218,7 @@ public class Worker implements Runnable {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Tries to activate screen and get token from middleware.
 	 * 
@@ -185,17 +227,21 @@ public class Worker implements Runnable {
 	 * @return boolean True if the token was set, else false.
 	 */
 	public boolean setToken(String activationCode) {
-		// Call middleware to get token.
-		URL url;
-		HttpURLConnection connection = null;
 		try {
+			URL url;
+
 			// Create request body
 			JSONObject body = new JSONObject();
 			body.put("activationCode", activationCode);
 
 			// Create connection
 			url = new URL(prop.getProperty("proxy") + "/activate");
-			connection = (HttpURLConnection) url.openConnection();
+
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			if (secure) {
+				((HttpsURLConnection)connection).setSSLSocketFactory(sslContext.getSocketFactory());
+			} 		
+			
 			connection.setRequestMethod("POST");
 			connection.setRequestProperty("Content-Type", "application/json");
 			connection.setRequestProperty("Content-Length",
@@ -204,7 +250,7 @@ public class Worker implements Runnable {
 			connection.setUseCaches(false);
 			connection.setDoInput(true);
 			connection.setDoOutput(true);
-
+			
 			// Send request
 			DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
 			wr.writeBytes(body.toString());
@@ -230,16 +276,15 @@ public class Worker implements Runnable {
 			out.print(token);
 			out.close();
 		} catch (IOException e) {
+			System.out.println("IOException");
+			e.printStackTrace();
 			return false;
 		} catch (JSONException e) {
 			System.out.println("Error reading json token.");
+			e.printStackTrace();
 			return false;
-		} finally {
-			if (connection != null) {
-				connection.disconnect();
-			}
 		}
-
+			
 		return true;
 	}
 
@@ -268,7 +313,7 @@ public class Worker implements Runnable {
 
 		// Setup Socket IO connection. 
 		try {
-			socket = new SocketIOClient(this, prop.getProperty("ws"), token, secure, selfsigned);
+			socket = new SocketIOClient(this, prop.getProperty("ws"), token, secure, sslContext);
 		} catch (MalformedURLException e) {
 			System.out.println("Error: Malformed url to middleware. Fix configuration and restart application.");
 		} catch (NoSuchAlgorithmException e) {

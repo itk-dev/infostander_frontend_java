@@ -1,19 +1,10 @@
 package dk.etek.infostander;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 
 import io.socket.IOAcknowledge;
 import io.socket.IOCallback;
@@ -29,38 +20,12 @@ public class SocketIOClient implements IOCallback {
 	private String token;
 	private URL url;
 	
-	public SocketIOClient(Worker worker, String serverURL, String token, boolean secure, boolean selfsigned) throws MalformedURLException, NoSuchAlgorithmException {
+	public SocketIOClient(Worker worker, String serverURL, String token, boolean secure, SSLContext sslContext) throws MalformedURLException, NoSuchAlgorithmException {
 		this.worker = worker;
 		this.token = token;
 		
 		if (secure) {
-			if (!selfsigned) {
-				SSLContext sslContext = SSLContext.getDefault();
-				SocketIO.setDefaultSSLSocketFactory(sslContext);
-			} else {
-				KeyStore keyStore;
-				try {
-					keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-					InputStream readStream = new FileInputStream("files/mykeystore.jks");
-					keyStore.load(readStream, ("Fisk.1").toCharArray());
-					TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-					tmf.init(keyStore);
-					
-					SSLContext sslContext = SSLContext.getInstance("TLS");
-					sslContext.init(null, tmf.getTrustManagers(), null);			
-				    SocketIO.setDefaultSSLSocketFactory(sslContext);
-				} catch (KeyStoreException e) {
-					e.printStackTrace();
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (CertificateException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (KeyManagementException e) {
-					e.printStackTrace();
-				}
-			}
+			SocketIO.setDefaultSSLSocketFactory(sslContext);
 		}
 				
 		url = new URL(serverURL + "?token=" + token);
