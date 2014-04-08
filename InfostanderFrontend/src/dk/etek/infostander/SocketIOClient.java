@@ -14,12 +14,25 @@ import io.socket.SocketIOException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * SocketIOClient class.
+ */
 public class SocketIOClient implements IOCallback {
 	private Worker worker;
 	private SocketIO socket;
 	private String token;
 	private URL url;
 	
+	/**
+	 * Constructor 
+	 * @param worker Worker that has launched this SocketIOClient
+	 * @param serverURL The server URL.
+	 * @param token The token.
+	 * @param secure Whether or not to use SSL.
+	 * @param sslContext The SSLContext to use if using SSL.
+	 * @throws MalformedURLException
+	 * @throws NoSuchAlgorithmException
+	 */
 	public SocketIOClient(Worker worker, String serverURL, String token, boolean secure, SSLContext sslContext) throws MalformedURLException, NoSuchAlgorithmException {
 		this.worker = worker;
 		this.token = token;
@@ -32,6 +45,9 @@ public class SocketIOClient implements IOCallback {
 		socket = new SocketIO(url, this);
 	}
 		
+	/**
+	 * Implementation of on method.
+	 */
 	@Override
 	public void on(String event, IOAcknowledge ack, Object... args) {
 		System.out.println("Server triggered event '" + event + "'");
@@ -54,11 +70,18 @@ public class SocketIOClient implements IOCallback {
 		}
 	}
 
+	/**
+	 * Terminate the socket connection.
+	 */
 	public void terminate() {
 		socket.disconnect();
 		socket = null;
 	}
 	
+	/**
+	 * Implementation of onConnect.
+	 * Emit ready to server on connect.
+	 */
 	@Override
 	public void onConnect() {
 		JSONObject json = new JSONObject();
@@ -70,11 +93,18 @@ public class SocketIOClient implements IOCallback {
 		socket.emit("ready", json);
 	}
 
+	/**
+	 * Implementation of onDisconnect.
+	 */
 	@Override
 	public void onDisconnect() {
 		System.out.println("Connection terminated.");
 	}
 
+	/**
+	 * Implementation of onError.
+	 * Wait 30 seconds then try to reestablish connection.
+	 */
 	@Override
 	public void onError(SocketIOException socketIOException) {
 		System.out.println("SocketIO exception: Restarting socket in 30 seconds...");

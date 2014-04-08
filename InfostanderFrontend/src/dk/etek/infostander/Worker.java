@@ -35,7 +35,7 @@ import org.json.JSONObject;
  * Worker class for Infostander.
  */
 public class Worker implements Runnable {
-	public static final int SLIDE_TIME = 6000;
+	public static final int SLIDE_TIME = 60000;
 	
 	private static final String CHANNEL_DAT_PATH = "files/channel.dat";
 	private static final String TOKEN_DAT_PATH   = "files/token.dat";
@@ -288,6 +288,9 @@ public class Worker implements Runnable {
 		return true;
 	}
 
+	/**
+	 * Implementation of run.
+	 */
 	@Override
 	public void run() {
 		// Initial get of channel.
@@ -319,7 +322,7 @@ public class Worker implements Runnable {
 		} catch (NoSuchAlgorithmException e) {
 			System.out.println("Error: SSL algorithm not found. Restart application.");
 		} 
-
+		
 		while (running) {
 			if (images.size() > 0) {
 				// Display next image in images array.

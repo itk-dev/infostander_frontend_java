@@ -51,7 +51,7 @@ public class Infostander extends JFrame {
 		// Hide cursor when inside window.
 		setCursor(getToolkit().createCustomCursor(new BufferedImage(3, 3, BufferedImage.TYPE_INT_ARGB), new Point(0, 0), "null"));
 
-		// Close when hitting.
+		// Close when hitting close button.
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 	}
 	
@@ -69,20 +69,29 @@ public class Infostander extends JFrame {
 	 * Fades image to black and asks for new 
 	 */
 	public void workerDone() {
+		// Wait a bit.
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			// No problem.
 		}
 		
+		// Fade out current image.
 		imagePanel.fadeToImage(new BufferedImage(WINDOW_WIDTH, WINDOW_HEIGHT, BufferedImage.TYPE_INT_ARGB));
-		String activationCode = JOptionPane.showInputDialog(null ,"Enter acctivation code:", "Not connected", JOptionPane.WARNING_MESSAGE);
 		
+		// Launch a new worker.
 		worker = new Worker(ui);
-		while(!worker.setToken(activationCode)) {
-			activationCode = JOptionPane.showInputDialog(null ,"Enter acctivation code:", "Wrong activation code!", JOptionPane.ERROR_MESSAGE);
+		if (worker.hasToken()) {
+			(new Thread(worker)).start();
+		} else {
+			String activationCode = JOptionPane.showInputDialog(null ,"Enter acctivation code:", "Not connected", JOptionPane.WARNING_MESSAGE);
+			while(activationCode != null && !worker.setToken(activationCode)) {
+				activationCode = JOptionPane.showInputDialog(null ,"Enter acctivation code:", "Wrong activation code!", JOptionPane.ERROR_MESSAGE);
+			}
+			if (worker.hasToken()) {
+				(new Thread(worker)).start();
+			}
 		}
-		(new Thread(worker)).start();
 	}
 		
 	/**
@@ -98,17 +107,18 @@ public class Infostander extends JFrame {
 				ui = new Infostander();
 				ui.setVisible(true);
 				
-				// Worker thread.
+				// Launch worker thread.
 				worker = new Worker(ui);
-				
 				if (worker.hasToken()) {
 					(new Thread(worker)).start();
 				} else {
 					String activationCode = JOptionPane.showInputDialog(null ,"Enter acctivation code:", "Not connected", JOptionPane.WARNING_MESSAGE);
-					while(!worker.setToken(activationCode)) {
+					while(activationCode != null && !worker.setToken(activationCode)) {
 						activationCode = JOptionPane.showInputDialog(null ,"Enter acctivation code:", "Wrong activation code!", JOptionPane.ERROR_MESSAGE);
 					}
-					(new Thread(worker)).start();
+					if (worker.hasToken()) {
+						(new Thread(worker)).start();
+					}
 				}
 			}
 		});

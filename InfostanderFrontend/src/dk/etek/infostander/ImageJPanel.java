@@ -13,6 +13,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+/**
+ * JPanel to display image ind. 
+ */
 public class ImageJPanel extends JPanel implements ActionListener {
 	private static final long serialVersionUID = -2952195227257913443L;
 	private static JLabel label;
@@ -25,6 +28,9 @@ public class ImageJPanel extends JPanel implements ActionListener {
     private float alpha = 1f;
     private boolean fadeDown;
 	
+    /**
+     * Constructor. Starts with black screen.
+     */
 	public ImageJPanel() {
 		((FlowLayout)getLayout()).setVgap(0);
 		label = new JLabel();
@@ -35,6 +41,10 @@ public class ImageJPanel extends JPanel implements ActionListener {
         timer.addActionListener(this);
 	}
 	
+	/**
+	 * Fade old image out, and new image in.
+	 * @param image
+	 */
 	public void fadeToImage(BufferedImage image) {
         timer.start();
 
@@ -52,11 +62,18 @@ public class ImageJPanel extends JPanel implements ActionListener {
         }
 	}
 	
+	/**
+	 * Set image to new image.
+	 * @param image
+	 */
 	public void setImage(BufferedImage image) {
 		ImageIcon icon = new ImageIcon(image);
 		label.setIcon(icon);
 	}
 	
+	/**
+	 * Paint component with alpha set to alpha variable.
+	 */
 	@Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -65,6 +82,9 @@ public class ImageJPanel extends JPanel implements ActionListener {
             AlphaComposite.SRC_IN, alpha));
     }
 	
+	/**
+	 * Updates the alpha value.
+	 */
 	@Override
     public void actionPerformed(ActionEvent e) {
 		if (fadeDown) {
