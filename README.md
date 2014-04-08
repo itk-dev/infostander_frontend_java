@@ -56,7 +56,7 @@ keytool -importkeystore -destkeystore [KEYSTORE_FILENAME].jks -srckeystore keyst
 </pre>
 
 ## To use valid certificate in producion
-Open the server frontend location. Save the certificate
+Open the server frontend location in a browser (Firefox). Press the lock icon > More information > View Certificate > Details > Export
 <pre>
 keytool -genkey -keyalg RSA -sigalg SHA1withRSA -keystore [KEYSTORE_FILENAME].jks -storepass [PASSWORD] -alias truststore 
 </pre>
