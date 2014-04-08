@@ -7,14 +7,14 @@ The project directory is InfostanderFrontend/ .
 
 The socket.io-java-client folder is a modified socket.io-client library (https://github.com/Gottox/socket.io-java-client).
 
-# Run from Eclipse.
+## Run from Eclipse.
 Open the workspace in the root folder of the project.
 
 Import the two subfolders (InfostanderFrontend/ and socket.io-java-client) as projects.
 
 Run as Java Application.
 
-# Compile to jar.
+## Compile to jar.
 Eclipse:
 
   - Export -> Java -> Runnable JAR file
@@ -22,7 +22,7 @@ Eclipse:
     - Launch configuration: Infostander - InfostanderFrontend
     - Library handling: Extract required libraries into generated JAR
 
-# To start program
+## To start program
 - Make folder infostander/
 
 - Put the jar file into infostander/
@@ -33,7 +33,10 @@ Eclipse:
 
 - Change relevant entries in config.properties
 
-- Run the .jar file
+- Run the .jar file. To run from console:
+<pre>
+java -jar infostander.jar
+</pre>
 
 ## To use selfsigned certificate in development
 Generate a selfsigned certificate: http://www.selfsignedcertificate.com/
