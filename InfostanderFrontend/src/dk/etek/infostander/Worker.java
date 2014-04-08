@@ -322,11 +322,17 @@ public class Worker implements Runnable {
 		} catch (NoSuchAlgorithmException e) {
 			System.out.println("Error: SSL algorithm not found. Restart application.");
 		} 
+
+		BufferedImage currentImage = null;
 		
 		while (running) {
 			if (images.size() > 0) {
 				// Display next image in images array.
-				infostander.setNewImage(images.get(index));
+				BufferedImage image = images.get(index);
+				if (currentImage == null || image != currentImage) {
+					infostander.setNewImage(image);
+					currentImage = image;
+				}
 			}
 			
 			index++;
