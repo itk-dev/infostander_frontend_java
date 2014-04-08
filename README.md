@@ -73,5 +73,4 @@ truststorepassword=[PASSWORD]
 </pre>
 
 ## Current issues
-* On windows: Background is white.
-* On windows: Fadein/Fadeout are instantaneous.
+No known issues.
